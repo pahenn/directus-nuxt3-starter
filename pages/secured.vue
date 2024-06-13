@@ -7,7 +7,7 @@
 
 <template>
   <div>secured page</div>
-  <div>
+  <pre>
     {{ unref(user) }}
-  </div>
+  </pre>
 </template>

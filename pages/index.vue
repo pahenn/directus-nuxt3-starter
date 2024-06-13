@@ -7,7 +7,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 justify-center items-center">
+  <div class="flex flex-col flex-1 justify-center items-center gap-6">
     <UCard v-if="unref(loggedIn)">
       <div class="flex items-center gap-4">
         <UAvatar

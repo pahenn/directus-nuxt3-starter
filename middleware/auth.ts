@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const { loggedIn } = storeToRefs(useAuthStore())
-  const { refresh } = useAuthStore()
+  const { refresh, reset: resetAuth } = useAuthStore()
 
   if (to.path === "/auth/login") {
     if (unref(loggedIn)) {
@@ -15,6 +15,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     } catch (e) {}
   }
   if (!unref(loggedIn)) {
+    resetAuth()
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.path },
