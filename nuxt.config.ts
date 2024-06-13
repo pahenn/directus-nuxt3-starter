@@ -12,10 +12,12 @@ export default defineNuxtConfig({
   colorMode: {
     preference: "light",
   },
-
   runtimeConfig: {
     public: {
-      directusUrl: "",
+      directus: {
+        url: "",
+        readMe: "id, email, role, first_name, last_name",
+      },
     },
   },
 })

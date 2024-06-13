@@ -4,6 +4,9 @@ import { readMe, registerUser } from "@directus/sdk"
 export const useAuthStore = defineStore(
   "auth",
   () => {
+    const runtimeConfig = useRuntimeConfig()
+    const directusConfig = runtimeConfig.public.directus
+
     const { $directus } = useNuxtApp()
 
     // state: user, loggedIn
@@ -19,6 +22,7 @@ export const useAuthStore = defineStore(
     const reset = () => {
       loggedIn.value = false
       user.value = {}
+      clearNuxtData()
     }
 
     // login
@@ -46,31 +50,23 @@ export const useAuthStore = defineStore(
     }
 
     // refresh
-    // try to refresh the token
-    // if successful, fetch the user data
-    // update the auth store with the user data
-    // if there's an error, throw an error
+    // try to refresh client tokem
+
     const refresh = async () => {
       try {
-        const response = await $directus.refresh()
+        await $directus.refresh()
+
         await getUser()
       } catch (e) {
         console.error(e)
-        throw new Error("Issue refreshing token")
       }
     }
 
     // logout
-    // get the token
-    // if there is no token, reset the auth store
     // try to logout
     // if logout was successful, reset the auth store
     const logout = async () => {
       try {
-        const token = $directus.getToken()
-        if (!token) {
-          reset()
-        }
         const response = await $directus.logout()
         localStorage.removeItem("directus_session_token")
 
@@ -88,9 +84,11 @@ export const useAuthStore = defineStore(
       try {
         const token = await $directus.getToken()
         // Try to fetch the user data
-        const response = await $directus.request(readMe(), {
-          fields: ["*"],
-        })
+        const response = await $directus.request(
+          readMe({
+            fields: [`${directusConfig.readMe}`],
+          })
+        )
 
         // Update the auth store with the user data
         loggedIn.value = true
@@ -127,13 +125,19 @@ export const useAuthStore = defineStore(
     return {
       user,
       loggedIn,
-      refresh,
       reset,
       login,
       logout,
       getUser,
       register,
+      refresh,
     }
   },
-  { persist: true }
+  {
+    persist: {
+      storage: persistedState.cookiesWithOptions({
+        maxAge: 60 * 60 * 24 * 1, // 1 day
+      }),
+    },
+  }
 )

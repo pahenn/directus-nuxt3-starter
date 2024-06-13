@@ -3,7 +3,7 @@
     middleware: "auth",
   })
   const route = useRoute()
-  const redirect = route.query.redirect as string | "/"
+  const redirect = route.query.redirect || "/"
 
   const { login } = useAuthStore()
 

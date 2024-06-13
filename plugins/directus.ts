@@ -15,10 +15,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const event = useRequestEvent()
 
   const runtimeConfig = useRuntimeConfig()
+  const directusConfig = runtimeConfig.public.directus
 
-  const directusUrl = runtimeConfig.public.directusUrl
-
-  const directus = createDirectus(directusUrl)
+  const directus = createDirectus(directusConfig.url)
     .with(
       authentication("session", {
         credentials: "include",
@@ -32,11 +31,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     try {
       const response = await directus.request(
-        withOptions(readMe(), {
-          headers: {
-            cookie: `directus_session_token=${cookie}`,
-          },
-        })
+        withOptions(
+          readMe({
+            fields: [`${directusConfig.readMe}`],
+          }),
+          {
+            headers: {
+              cookie: `directus_session_token=${cookie}`,
+            },
+          }
+        )
       )
       user.value = response
     } catch (error) {
