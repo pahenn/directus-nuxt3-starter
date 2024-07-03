@@ -11,7 +11,7 @@ import {
 import { getCookie } from "h3"
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const user = useState("user")
+  const user = useState("user") // TODO: this should refer to the auth store rather than useState
   const event = useRequestEvent()
 
   const runtimeConfig = useRuntimeConfig()
