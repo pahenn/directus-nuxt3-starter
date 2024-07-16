@@ -2,7 +2,7 @@ import { defineStore } from "pinia"
 import { readMe, registerUser } from "@directus/sdk"
 
 export const useAuthStore = defineStore(
-  "auth",
+  "auth-store",
   () => {
     const runtimeConfig = useRuntimeConfig()
     const directusConfig = runtimeConfig.public.directus
@@ -22,6 +22,7 @@ export const useAuthStore = defineStore(
     const reset = () => {
       loggedIn.value = false
       user.value = {}
+      localStorage.removeItem("auth-store")
       clearNuxtData()
     }
 
@@ -53,9 +54,11 @@ export const useAuthStore = defineStore(
     // try to refresh client tokem
 
     const refresh = async () => {
+      const token = await $directus.getToken()
+      if (!token) {
+        return
+      }
       try {
-        await $directus.refresh()
-
         await getUser()
       } catch (e) {
         console.error(e)
@@ -66,10 +69,16 @@ export const useAuthStore = defineStore(
     // try to logout
     // if logout was successful, reset the auth store
     const logout = async () => {
+      const token = await $directus.getToken()
+      if (token) {
+        try {
+          const response = await $directus.logout()
+        } catch (e) {
+          console.error(e)
+        }
+      }
       try {
-        const response = await $directus.logout()
-        localStorage.removeItem("directus_session_token")
-
+        localStorage.removeItem("directus-auth")
         // If logout was successful, reset the auth store
         reset()
       } catch (e) {
@@ -82,7 +91,6 @@ export const useAuthStore = defineStore(
     // update the auth store with the user data
     const getUser = async () => {
       try {
-        const token = await $directus.getToken()
         // Try to fetch the user data
         const response = await $directus.request(
           readMe({

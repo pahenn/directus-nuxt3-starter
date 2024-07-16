@@ -10,7 +10,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
   if (!unref(loggedIn)) {
     try {
-      //TODO: check to see if this actually works to refresh the token and user data
       await refresh()
     } catch (e) {}
   }
